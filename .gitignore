@@ -11,3 +11,4 @@ pnpm-workspace.yaml
 src-tauri/target
 .env
 .eslintcache
+test-*.md
