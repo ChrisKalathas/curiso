@@ -31,6 +31,9 @@ Curiso AI is an infinite canvas for your thoughts—a platform that seamlessly c
 - **Custom Model Support**: Add and configure custom AI models
 - **Model Metrics**: View metrics for models like tok/sec and total tokens
 - **RAG Support (Retrieval Augmented Generation)**: Add and configure RAG documents and websites locally
+  - Enhanced website scraping with Firecrawl integration for better content extraction
+  - Automatic fallback to traditional scraping when Firecrawl is not configured
+  - Support for URL validation and error handling
 - **Local Transformers.js Embedding Models or OpenAI**: Add and configure local embedding models or OpenAI embedding models
 - **Local VectorDB IndexedDB**: Local VectorDB IndexedDB for RAG
 - **Inference Parameters**: Customize the inference parameters for your conversations
@@ -97,6 +100,37 @@ bun install
 ```bash
 sudo bun run desktop
 ```
+
+## Configuration
+
+### Firecrawl Integration for Enhanced Website Scraping
+
+Curiso includes optional Firecrawl integration for improved website content extraction in RAG (Retrieval Augmented Generation).
+
+#### Setting up Firecrawl
+
+1. **Get a Firecrawl API Key**:
+   - Visit [Firecrawl.dev](https://firecrawl.dev) and sign up for an account
+   - Get your API key from the dashboard
+
+2. **Configure in Curiso**:
+   - Open Settings in Curiso
+   - Go to the "API Keys" tab
+   - Enter your Firecrawl API key in the "Firecrawl API Key" field
+
+3. **Using the Feature**:
+   - Navigate to Settings → RAG Settings
+   - Enable RAG if not already enabled
+   - Enter any website URL in the "Enter website URL" field
+   - Click "Add Website" to scrape and add the content to your knowledge base
+
+#### How it Works
+
+- **With Firecrawl**: Curiso uses Firecrawl's advanced scraping capabilities for better content extraction, handling JavaScript-rendered content, and respecting robots.txt
+- **Without Firecrawl**: Curiso automatically falls back to traditional HTML scraping methods
+- **Error Handling**: Comprehensive error messages guide you through any configuration or scraping issues
+
+The system is designed to work seamlessly regardless of whether you have Firecrawl configured, ensuring all users can benefit from website content integration.
 
 ## Known Issues
 

@@ -8,7 +8,7 @@ import { defaultLocalModels } from './localmodels';
 import { VectorDB } from './db';
 import { useMetricsStore } from './metricstore';
 
-export const STORE_VERSION = 7;
+export const STORE_VERSION = 8;
 const MASTER_KEY = import.meta.env.VITE_MASTER_KEY ?? 'default-master-key';
 const FALLBACK_KEY = import.meta.env.VITE_FALLBACK_KEY ?? 'default-fallback-key';
 
@@ -68,6 +68,7 @@ const defaultSettings: GlobalSettings = {
   openrouter: { apiKey: '' },
   anthropic: { apiKey: '' },
   google: { apiKey: '' },
+  firecrawl: { apiKey: '' },
   customModels: defaultLocalModels,
   temperature: 0.7,
   top_p: 0,
@@ -140,6 +141,11 @@ const migrations = {
     alibabacloud: { apiKey: '' },
     nvidia: { apiKey: '' },
   }),
+  7: (state: any) => ({
+    ...state,
+    version: 8,
+    firecrawl: { apiKey: '' },
+  }),
 };
 
 const migrateStore = (persistedState: any): any => {
@@ -150,6 +156,32 @@ const migrateStore = (persistedState: any): any => {
   // Special case 1: Handle broken v7 stores
   if (state.version === 7) {
     console.log('Fixing potentially broken v7 store');
+    return {
+      settings: {
+        ...defaultSettings,
+        ...state,
+        version: 8,
+        // Preserve existing API keys while ensuring all fields exist
+        openai: state.openai || { apiKey: '' },
+        deepseek: state.deepseek || { apiKey: '' },
+        perplexity: state.perplexity || { apiKey: '' },
+        xai: state.xai || { apiKey: '' },
+        wai: state.wai || { apiKey: '' },
+        inferencenet: state.inferencenet || { apiKey: '' },
+        alibabacloud: state.alibabacloud || { apiKey: '' },
+        groq: state.groq || { apiKey: '' },
+        openrouter: state.openrouter || { apiKey: '' },
+        anthropic: state.anthropic || { apiKey: '' },
+        google: state.google || { apiKey: '' },
+        nvidia: state.nvidia || { apiKey: '' },
+        firecrawl: state.firecrawl || { apiKey: '' },
+      },
+    };
+  }
+
+  // Special case 1.5: Handle v8 stores to ensure all fields exist
+  if (state.version === 8) {
+    console.log('Fixing potentially broken v8 store');
     return {
       settings: {
         ...defaultSettings,
@@ -167,6 +199,7 @@ const migrateStore = (persistedState: any): any => {
         anthropic: state.anthropic || { apiKey: '' },
         google: state.google || { apiKey: '' },
         nvidia: state.nvidia || { apiKey: '' },
+        firecrawl: state.firecrawl || { apiKey: '' },
       },
     };
   }
@@ -177,7 +210,7 @@ const migrateStore = (persistedState: any): any => {
     return {
       settings: {
         ...state,
-        version: 7,
+        version: 8,
         wai: { apiKey: '' },
         inferencenet: { apiKey: '' },
         alibabacloud: { apiKey: '' },
@@ -186,6 +219,7 @@ const migrateStore = (persistedState: any): any => {
         anthropic: state.anthropic || { apiKey: '' },
         google: state.google || { apiKey: '' },
         nvidia: state.nvidia || { apiKey: '' },
+        firecrawl: { apiKey: '' },
       },
     };
   }

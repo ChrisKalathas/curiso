@@ -454,6 +454,29 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   </div>
                 </Card>
 
+                <Card className="p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center text-white text-xs font-bold">F</div>
+                      <Label>Firecrawl API Key</Label>
+                    </div>
+                    <Input
+                      type="password"
+                      placeholder="fc-..."
+                      value={settings.firecrawl.apiKey}
+                      onChange={e =>
+                        setSettings({
+                          ...settings,
+                          firecrawl: { ...settings.firecrawl, apiKey: e.target.value },
+                        })
+                      }
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Used for enhanced website scraping in RAG
+                    </p>
+                  </div>
+                </Card>
+
                 {/* <Card className="p-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">

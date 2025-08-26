@@ -442,6 +442,32 @@ export function RAGManager() {
       setUrlInput('');
     } catch (error) {
       console.error('Failed to add website:', error);
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to add website';
+      if (error instanceof Error) {
+        if (error.message.includes('HTTP error')) {
+          errorMessage = 'Unable to access the website. Please check the URL and try again.';
+        } else if (error.message.includes('No content')) {
+          errorMessage = 'No content could be extracted from the website.';
+        } else if (error.message.includes('Firecrawl')) {
+          errorMessage = 'Website scraping failed. Please check your Firecrawl API key in settings.';
+        } else {
+          errorMessage = `Failed to add website: ${error.message}`;
+        }
+      }
+      
+      toast({
+        title: 'Error Adding Website',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      
+      // Clean up progress for failed uploads
+      setProgress(prev => {
+        const { [tempId]: _, ...rest } = prev;
+        return rest;
+      });
     } finally {
       setIsUploading(false);
       setUploadingDocs(prev => prev.filter(id => id !== tempId));

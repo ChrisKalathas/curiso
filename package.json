@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.33.1",
+    "@firecrawl/firecrawl-js": "^1.8.0",
     "@hookform/resolvers": "^3.9.1",
     "@huggingface/transformers": "^3.2.4",
     "@jridgewell/trace-mapping": "^0.3.25",

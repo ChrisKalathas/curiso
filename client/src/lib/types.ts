@@ -122,6 +122,7 @@ export interface GlobalSettings {
   anthropic: ProviderSettings;
   openrouter: ProviderSettings;
   google: ProviderSettings;
+  firecrawl: ProviderSettings;
   temperature: number;
   top_p: number;
   max_tokens: number;
