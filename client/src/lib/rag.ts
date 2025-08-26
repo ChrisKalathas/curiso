@@ -4,6 +4,8 @@ import { embeddingService } from './embeddings';
 import { encode } from 'gpt-tokenizer';
 import { PDFProcessor } from './pdf';
 import { WebScraper } from './scraper';
+import { FirecrawlProcessor } from './firecrawl';
+import { AISummaryService } from './aiSummary';
 import { useStore } from '@/lib/store';
 
 interface ProgressCallbacks {
@@ -201,19 +203,88 @@ export class RAGService {
       await embeddingService.init(status => callbacks?.onModelStatus?.(status));
     }
 
-    callbacks?.onModelStatus?.('Scraping website...');
-    const scraper = new WebScraper();
-    const { content, metadata } = await scraper.scrapeUrl(url);
-
     const documentId = crypto.randomUUID();
+    let processedData;
+    let aiSummary = '';
+
+    // Try Firecrawl first, fallback to basic scraping
+    const settings = useStore.getState().settings;
+    const hasFirecrawlKey = settings.firecrawl.apiKey && settings.firecrawl.apiKey.trim() !== '';
+
+    try {
+      if (hasFirecrawlKey) {
+        callbacks?.onModelStatus?.('Processing with Firecrawl...');
+        const firecrawlProcessor = new FirecrawlProcessor(settings.firecrawl.apiKey);
+        processedData = await firecrawlProcessor.processUrl(url);
+        
+        // Generate AI summary
+        try {
+          callbacks?.onModelStatus?.('Generating AI summary...');
+          const summaryService = new AISummaryService();
+          aiSummary = await summaryService.generateSummary(
+            processedData.content, 
+            url, 
+            { maxLength: 150, focus: 'general', includeKeyPoints: true }
+          );
+        } catch (summaryError) {
+          console.warn('AI summary generation failed:', summaryError);
+          aiSummary = 'AI summary generation failed. Please check your AI provider API keys.';
+        }
+      } else {
+        // Fallback to basic scraping
+        callbacks?.onModelStatus?.('Scraping website (basic mode)...');
+        const scraper = new WebScraper();
+        const scraperResult = await scraper.scrapeUrl(url);
+        
+        processedData = {
+          content: scraperResult.content,
+          markdownContent: this.convertToBasicMarkdown(scraperResult.content),
+          metadata: {
+            ...scraperResult.metadata,
+            type: 'website' as const,
+          }
+        };
+        
+        aiSummary = 'AI summary not available - Firecrawl API key required for enhanced processing.';
+      }
+    } catch (error) {
+      console.error('Enhanced processing failed, falling back to basic scraping:', error);
+      
+      // Final fallback to basic scraping
+      callbacks?.onModelStatus?.('Falling back to basic scraping...');
+      const scraper = new WebScraper();
+      const scraperResult = await scraper.scrapeUrl(url);
+      
+      processedData = {
+        content: scraperResult.content,
+        markdownContent: this.convertToBasicMarkdown(scraperResult.content),
+        metadata: {
+          ...scraperResult.metadata,
+          type: 'website' as const,
+        }
+      };
+      
+      aiSummary = 'AI summary not available - enhanced processing failed.';
+    }
+
     const enhancedMetadata = {
       id: documentId,
       type: 'website',
-      ...metadata,
+      url: processedData.metadata.url,
+      title: processedData.metadata.title,
+      description: processedData.metadata.description,
+      dateScraped: processedData.metadata.dateScraped,
+      markdownContent: processedData.markdownContent,
+      aiSummary: aiSummary,
+      originalContent: processedData.content,
+      processingStatus: 'completed' as const,
+      language: processedData.metadata.language,
+      author: processedData.metadata.author,
+      keywords: processedData.metadata.keywords,
     };
 
     callbacks?.onModelStatus?.('Chunking content...');
-    const chunks = this.chunkText(content);
+    const chunks = this.chunkText(processedData.content);
     const chunkIds: string[] = [];
 
     for (let i = 0; i < chunks.length; i++) {
@@ -336,5 +407,24 @@ export class RAGService {
     }
 
     return chunks;
+  }
+
+  private convertToBasicMarkdown(text: string): string {
+    // Convert plain text to basic markdown formatting
+    let markdown = text;
+
+    // Split into paragraphs
+    const paragraphs = markdown.split(/\n\s*\n/);
+    
+    return paragraphs
+      .map(paragraph => {
+        // Try to identify headings (lines that are shorter and might be titles)
+        if (paragraph.length < 80 && !paragraph.includes('.') && paragraph.trim().length > 0) {
+          return `## ${paragraph.trim()}`;
+        }
+        return paragraph.trim();
+      })
+      .filter(p => p.length > 0)
+      .join('\n\n');
   }
 }

@@ -60,6 +60,12 @@ export interface RAGWebsite {
   url: string;
   title: string;
   dateScraped: string;
+  description?: string;
+  markdownContent?: string;
+  aiSummary?: string;
+  originalContent?: string;
+  processingStatus?: 'pending' | 'processing' | 'completed' | 'error';
+  errorMessage?: string;
 }
 
 export interface RAGSettings {
@@ -122,6 +128,7 @@ export interface GlobalSettings {
   anthropic: ProviderSettings;
   openrouter: ProviderSettings;
   google: ProviderSettings;
+  firecrawl: ProviderSettings;
   temperature: number;
   top_p: number;
   max_tokens: number;
