@@ -468,7 +468,7 @@ export function RAGManager() {
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted-foreground">
-        Enable RAG to use documents and websites for context in conversations.
+        Enable RAG to use documents and websites for context in conversations. Enhanced URL processing with Firecrawl provides formatted markdown content and AI-generated summaries.
       </p>
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">RAG Enabled</h3>
@@ -619,7 +619,7 @@ export function RAGManager() {
                 className="mt-4"
               />
             </div>
-            <div className="mt-2 mb-2 h-[150px] overflow-y-auto space-y-2">
+            <div className="mt-2 mb-2 h-[200px] overflow-y-auto space-y-2">
               {/* Show uploading documents */}
               {uploadingDocs.map(docId => (
                 <div key={docId} className="flex items-center justify-between p-2 border rounded">
@@ -658,15 +658,53 @@ export function RAGManager() {
               ))}
 
               {settings.rag.websites?.map(site => (
-                <div key={site.id} className="flex items-center justify-between p-2 border rounded">
-                  <div className="flex-1">
-                    <p className="text-sm">{site.title || site.url}</p>
+                <div key={site.id} className="flex items-start justify-between p-3 border rounded">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium">{site.title || site.url}</p>
+                      {site.processingStatus && (
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          site.processingStatus === 'completed' 
+                            ? 'bg-green-100 text-green-800' 
+                            : site.processingStatus === 'error'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {site.processingStatus}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500">
                       {site.url} - Added {new Date(site.dateScraped).toLocaleDateString()}
                     </p>
+                    {site.description && (
+                      <p className="text-xs text-gray-600 italic">{site.description}</p>
+                    )}
+                    {site.aiSummary && (
+                      <div className="bg-blue-50 p-2 rounded text-xs">
+                        <span className="font-medium text-blue-800">AI Summary:</span>
+                        <p className="text-blue-700 mt-1">{site.aiSummary}</p>
+                      </div>
+                    )}
+                    {site.markdownContent && (
+                      <details className="text-xs">
+                        <summary className="cursor-pointer text-gray-600 hover:text-gray-800">
+                          View Formatted Content
+                        </summary>
+                        <div className="mt-2 p-2 bg-gray-50 rounded max-h-32 overflow-y-auto">
+                          <pre className="whitespace-pre-wrap text-xs">{site.markdownContent.substring(0, 500)}{site.markdownContent.length > 500 ? '...' : ''}</pre>
+                        </div>
+                      </details>
+                    )}
+                    {site.errorMessage && (
+                      <div className="bg-red-50 p-2 rounded text-xs">
+                        <span className="font-medium text-red-800">Error:</span>
+                        <p className="text-red-700 mt-1">{site.errorMessage}</p>
+                      </div>
+                    )}
                   </div>
                   <Button variant="destructive" size="icon" onClick={() => removeWebsite(site.id)}>
-                    <Trash2 className="h-2 w-2" />
+                    <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
               ))}

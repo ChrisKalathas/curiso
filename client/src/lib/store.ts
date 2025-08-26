@@ -68,6 +68,7 @@ const defaultSettings: GlobalSettings = {
   openrouter: { apiKey: '' },
   anthropic: { apiKey: '' },
   google: { apiKey: '' },
+  firecrawl: { apiKey: '' },
   customModels: defaultLocalModels,
   temperature: 0.7,
   top_p: 0,

@@ -36,6 +36,7 @@ import waiLogo from '@/assets/wai-logo.svg';
 import inferencenetLogo from '@/assets/inferencenet-logo.svg';
 import alibabacloudLogo from '@/assets/alibaba-logo.png';
 import nvidiaLogo from '@/assets/nvidia-logo.svg';
+import firecrawlLogo from '@/assets/firecrawl-logo.svg';
 import { BackupDialog } from './BackupDialog';
 interface SettingsDialogProps {
   open: boolean;
@@ -448,6 +449,26 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         setSettings({
                           ...settings,
                           alibabacloud: { ...settings.alibabacloud, apiKey: e.target.value },
+                        })
+                      }
+                    />
+                  </div>
+                </Card>
+
+                <Card className="p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <img src={firecrawlLogo} alt="Firecrawl" className="w-6 h-6" />
+                      <Label>Firecrawl API Key</Label>
+                    </div>
+                    <Input
+                      type="password"
+                      placeholder="fc-..."
+                      value={settings.firecrawl.apiKey}
+                      onChange={e =>
+                        setSettings({
+                          ...settings,
+                          firecrawl: { ...settings.firecrawl, apiKey: e.target.value },
                         })
                       }
                     />
